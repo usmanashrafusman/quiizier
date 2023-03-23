@@ -11,15 +11,13 @@ datasource db {
 }
 
 model Creators {
-  id                        String    @id @default(uuid())
-  name                      String
-  email                     String
-  password_hash             String
-  last_password_updated     String
-  forget_password_timestamp DateTime
-  created_at                String
-  updated_at                String
-  Quizzes                   Quizzes[]
+  id         String    @id @default(uuid())
+  name       String
+  email      String    @unique()
+  password   String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  Quizzes    Quizzes[]
 }
 
 model Quizzes {
