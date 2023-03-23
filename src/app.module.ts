@@ -1,7 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { Imports, Controllers, Services } from './app.imports';
-import { CreatorModule } from './creator/creator.module';
-
+import { AuthMiddleware } from './middlewares/auth.middleware';
 
 @Module({
   imports: Imports,
@@ -9,4 +8,15 @@ import { CreatorModule } from './creator/creator.module';
   providers: Services,
 })
 
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware).exclude({
+        path: '/creator/register',
+        method: RequestMethod.POST,
+      }, {
+        path: '/creator/login',
+        method: RequestMethod.POST,
+      }).forRoutes('/');
+  }
+}
