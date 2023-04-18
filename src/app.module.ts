@@ -12,11 +12,14 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware).exclude({
-        path: '/creator/register',
+        path: '/user/register',
         method: RequestMethod.POST,
       }, {
-        path: '/creator/login',
+        path: '/user/login',
         method: RequestMethod.POST,
+      }, {
+        path: 'user/verify-user/:token',
+        method: RequestMethod.GET,
       }).forRoutes('/');
   }
 }
