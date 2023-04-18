@@ -31,7 +31,9 @@ export class UserService {
       verificationToken,
     });
 
-    const verificationEmail = await this.emailService.sendEmail(body.email, "Email Verification Required", "Please Click Below Link to Verify Your Email");
+    const HTML = `<p>Click Below To Verify Your Email<p> <a href=http://localhost:9999/user/verify-user/${verificationToken}>Verify Email</a>`
+
+    const verificationEmail = await this.emailService.sendEmail(body.email, "Email Verification Required", "Please Click Below Link to Verify Your Email", HTML);
     if (!verificationEmail) {
       throw new BadRequestException(ERROR_CODES.UNEXPECTED_ERROR);
     };
