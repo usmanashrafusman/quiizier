@@ -1,5 +1,4 @@
 import { Injectable, Res } from '@nestjs/common';
-import { Response } from 'express';
 import { sign  , verify} from 'jsonwebtoken';
 import { hash, compare } from 'bcryptjs';
 const SECRET_KEY = "123"
