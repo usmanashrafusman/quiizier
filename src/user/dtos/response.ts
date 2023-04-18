@@ -3,3 +3,7 @@ export interface UserResponse {
     name: string;
     email: string;
 }
+
+export interface EmailVerificationResponse {
+    message:string
+}

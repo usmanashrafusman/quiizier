@@ -9,6 +9,12 @@ export class UserModel extends Document {
     @Prop({ required: true, unique: true, index: "text" })
     email: string;
 
+    @Prop({ required: true, default: false })
+    status: boolean;
+
+    @Prop({ required: true })
+    verificationToken: string;
+
     @Prop({ required: true })
     password: string;
 

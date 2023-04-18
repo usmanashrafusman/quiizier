@@ -17,6 +17,9 @@ export class AppModule implements NestModule {
       }, {
         path: '/user/login',
         method: RequestMethod.POST,
+      }, {
+        path: '/verify-user/:token',
+        method: RequestMethod.GET,
       }).forRoutes('/');
   }
 }
