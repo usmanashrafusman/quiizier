@@ -5,5 +5,6 @@ export default () => ({
     EMAIL_SERVICE_EMAIL_PASSWORD: process.env.EMAIL_SERVICE_EMAIL_PASSWORD,
     EMAIL_SERVICE_INFO: process.env.EMAIL_SERVICE_INFO,
     SECRET_KEY: process.env.SECRET_KEY,
+    FRONTEND_URL: process.env.FRONTEND_URL,
     SALT: process.env.SALT,
 });

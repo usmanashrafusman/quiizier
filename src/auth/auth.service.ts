@@ -13,7 +13,7 @@ export class AuthService {
   };
 
   decodeToken(token: string) {
-    const decoded = verify(token, this.configService.get("SECRET_KEY"));
+    const decoded :any = verify(token, this.configService.get("SECRET_KEY"));
     return decoded;
   }
 
