@@ -1,20 +1,21 @@
+import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
-import { createTestAccount, createTransport } from "nodemailer"
+import { createTransport } from "nodemailer"
 @Injectable()
 export class EmailService {
+  constructor(private configService: ConfigService) { }
   async sendEmail(to: string, subject: string, text: string, html?: string): Promise<boolean> {
-
     try {
       let transporter = createTransport({
-        service: "gmail",
+        service: this.configService.get("EMAIL_SERVICE"),
         auth: {
-          user: "info.askanyone@gmail.com",
-          pass: "ybdloadoduyoupbf",
+          user: this.configService.get("EMAIL_SERVICE_EMAIL"),
+          pass: this.configService.get("EMAIL_SERVICE_EMAIL_PASSWORD"),
         },
       });
 
       let info = await transporter.sendMail({
-        from: 'info.askanyone@gmail.com',
+        from: this.configService.get("EMAIL_SERVICE_INFO"),
         to: to,
         subject: subject,
         text: text,
