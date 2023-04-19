@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Response } from 'express';
 import { Model } from 'mongoose';
 
-import { UserModel } from 'src/schemas/user.schema';
+import { UserModel, SessionsModel, } from "src/schemas"
 import { AuthService } from 'src/auth/auth.service';
 import { EmailService } from 'src/email/email.service';
 import { RegisterUser, LoginUser } from './dtos/request';
@@ -12,7 +13,7 @@ import { ERROR_CODES } from '../dtos/errors.code';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(UserModel.name) private userModel: Model<UserModel>, private authService: AuthService, private emailService: EmailService) { }
+  constructor(@InjectModel(UserModel.name) private userModel: Model<UserModel>, @InjectModel(SessionsModel.name) private sessionsModel: Model<SessionsModel>, private authService: AuthService, private emailService: EmailService, private configService: ConfigService) { }
 
   async registerUser(body: RegisterUser, res: Response) {
     const isExist = await this.userModel.findOne({ email: body.email })
@@ -31,7 +32,7 @@ export class UserService {
       verificationToken,
     });
 
-    const HTML = `<p>Click Below To Verify Your Email<p> <a href=http://localhost:9999/user/verify-user/${verificationToken}>Verify Email</a>`
+    const HTML = `<p>Click Below To Verify Your Email<p> <a href=${this.configService.get("FRONTEND_URL")}user/verify-user/${verificationToken}>Verify Email</a>`
 
     const verificationEmail = await this.emailService.sendEmail(body.email, "Email Verification Required", "Please Click Below Link to Verify Your Email", HTML);
     if (!verificationEmail) {
@@ -72,7 +73,15 @@ export class UserService {
       name: isExist.name,
       email: isExist.email
     }
-    const token = this.authService.generateToken(user)
+    //making all previous sessions expired
+    await this.sessionsModel.updateMany({ userId: user._id }, { $set: { status: false } })
+
+    const token = this.authService.generateToken(user);
+    //adding the token into sessions
+    await this.sessionsModel.create({
+      token,
+      userId: user._id
+    })
     res.cookie("Authorization", token, {
       httpOnly: true,
       maxAge: 28800000,
