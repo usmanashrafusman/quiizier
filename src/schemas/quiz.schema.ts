@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document, Schema as MongooseSchema, HydratedDocument } from 'mongoose';
 
 @Schema({ timestamps: true, versionKey: false, collection: "quizzes" })
 export class QuizModel extends Document {
@@ -19,9 +19,9 @@ export class QuizModel extends Document {
     isPublic: boolean;
 
     @Prop({ required: true, default: false })
-    runningPeriod: boolean;
+    isPeriodRunning: boolean;
 
-    @Prop({ required: true })
+    @Prop()
     publicAccessKey: string;
 
     @Prop({ required: true, type: Date, default: Date.now })
@@ -35,3 +35,4 @@ export class QuizModel extends Document {
 }
 
 export const QuizSchema = SchemaFactory.createForClass(QuizModel);
+export type IQuiz = HydratedDocument<QuizModel>

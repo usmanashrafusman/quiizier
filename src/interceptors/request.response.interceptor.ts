@@ -12,13 +12,6 @@ export class RequestResponseInterceptor implements NestInterceptor {
             request.body.data = this.authService.decryptData(request.body.data);
         };
 
-        if (request.cookies["Authorization"] && request.cookies["visitorId"]) {
-            const token = decodeURIComponent(request.cookies["Authorization"]);
-            const visitorId = decodeURIComponent(request.cookies["visitorId"]);
-            request.cookies["Authorization"] = await this.authService.decryptData(token);
-            request.cookies["visitorId"] = await this.authService.decryptData(visitorId);
-        }
-
         return next.handle().pipe(map(async (response) => {
             if (response?.data) {
                 response.data = this.authService.encryptData(response.data);

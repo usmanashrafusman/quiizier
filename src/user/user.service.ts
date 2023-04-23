@@ -79,7 +79,7 @@ export class UserService {
     //adding the token into sessions
     const encryptedToken = this.authService.encryptData(token);
     const encryptedVisitorId = this.authService.encryptData(visitorId);
-
+    
     await this.sessionsModel.create({
       token,
       visitorId,
