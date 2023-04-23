@@ -11,6 +11,7 @@ specifiers:
   '@nestjs/testing': ^9.0.0
   '@types/bcryptjs': ^2.4.2
   '@types/cookie-parser': ^1.4.3
+  '@types/crypto-js': ^4.1.1
   '@types/express': ^4.17.13
   '@types/jest': 29.2.4
   '@types/jsonwebtoken': ^9.0.1
@@ -23,6 +24,7 @@ specifiers:
   class-transformer: ^0.5.1
   class-validator: ^0.14.0
   cookie-parser: ^1.4.6
+  crypto-js: ^4.1.1
   eslint: ^8.0.1
   eslint-config-prettier: ^8.3.0
   eslint-plugin-prettier: ^4.0.0
@@ -47,10 +49,12 @@ dependencies:
   '@nestjs/core': 9.3.12_qhubmme3ystyvorrsy6sfc2ome
   '@nestjs/mongoose': 9.2.2_k7cfjzphvzytu2tft7igftbzze
   '@nestjs/platform-express': 9.3.12_ge4qplnzbmfyi5znl534zhtkn4
+  '@types/crypto-js': 4.1.1
   bcryptjs: 2.4.3
   class-transformer: 0.5.1
   class-validator: 0.14.0
   cookie-parser: 1.4.6
+  crypto-js: 4.1.1
   jsonwebtoken: 9.0.0
   mongoose: 7.0.4
   nodemailer: 6.9.1
@@ -1193,6 +1197,10 @@ packages:
     resolution: {integrity: sha512-t73xJJrvdTjXrn4jLS9VSGRbz0nUY3cl2DMGDU48lKl+HR9dbbjW2A9r3g40VA++mQpy6uuHg33gy7du2BKpog==}
     dev: true
 
+  /@types/crypto-js/4.1.1:
+    resolution: {integrity: sha512-BG7fQKZ689HIoc5h+6D2Dgq1fABRa0RbBWKBd9SP/MVRVXROflpm5fhwyATX5duFmbStzyzyycPB8qUYKDH3NA==}
+    dev: false
+
   /@types/eslint-scope/3.7.4:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
     dependencies:
@@ -2222,6 +2230,10 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
     dev: true
+
+  /crypto-js/4.1.1:
+    resolution: {integrity: sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==}
+    dev: false
 
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
