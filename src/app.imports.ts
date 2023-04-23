@@ -16,10 +16,19 @@ import { EmailModule } from "./email/email.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { SessionsModel, SessionsSchema } from "./schemas";
 
+import { APP_INTERCEPTOR } from '@nestjs/core'
+
+import { RequestResponseInterceptor } from "./interceptors/request.response.interceptor";
+
+const RequestResponse = {
+    provide: APP_INTERCEPTOR,
+    useClass: RequestResponseInterceptor
+}
+
 export const Imports = [ConfigModule.forRoot({
     isGlobal: true,
     load: [configuration]
 }), DatabaseModule, MongooseModule.forFeature([{ name: SessionsModel.name, schema: SessionsSchema }]), AuthModule, EmailModule, UserModule,]
 
 export const Controllers = [AppController]
-export const Services = [AppService]
+export const Services = [AppService, RequestResponse]

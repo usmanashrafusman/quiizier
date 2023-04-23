@@ -15,7 +15,7 @@ import { ERROR_CODES } from '../dtos/errors.code';
 export class UserService {
   constructor(@InjectModel(UserModel.name) private userModel: Model<UserModel>, @InjectModel(SessionsModel.name) private sessionsModel: Model<SessionsModel>, private authService: AuthService, private emailService: EmailService, private configService: ConfigService) { }
 
-  async registerUser(body: RegisterUser, res: Response) {
+  async registerUser(body: RegisterUser) {
     const isExist = await this.userModel.findOne({ email: body.email })
 
     if (isExist) {
@@ -48,10 +48,9 @@ export class UserService {
     };
   }
 
-  async loginUser(body: LoginUser, res: Response) {
+  async loginUser(body: LoginUser, visitorId: string, res: Response) {
 
     const isExist = await this.userModel.findOne({ email: body.email })
-
     //If the user does not exist
     if (!isExist) {
       throw new BadRequestException(ERROR_CODES.USER_DOES_NOT_EXIST);
@@ -76,16 +75,26 @@ export class UserService {
     //making all previous sessions expired
     await this.sessionsModel.updateMany({ userId: user._id }, { $set: { status: false } })
 
-    const token = this.authService.generateToken(user);
+    const token = this.authService.generateToken({ ...user, visitorId });
     //adding the token into sessions
+    const encryptedToken = this.authService.encryptData(token);
+    const encryptedVisitorId = this.authService.encryptData(visitorId);
+
     await this.sessionsModel.create({
       token,
+      visitorId,
       userId: user._id
     })
-    res.cookie("Authorization", token, {
+    res.cookie("Authorization", encryptedToken, {
       httpOnly: true,
       maxAge: 28800000,
     });
+
+    res.cookie("visitorId", encryptedVisitorId, {
+      httpOnly: true,
+      maxAge: 28800000,
+    });
+
     return {
       data: user,
       messages: [{

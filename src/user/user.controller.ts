@@ -1,5 +1,5 @@
+import { Controller, Post, Body, Res, Get, Param, Headers } from '@nestjs/common';
 import { Response } from 'express';
-import { Controller, Post, Body, Res, Get, Param } from '@nestjs/common';
 import { ResponseDto } from 'src/dtos/response.dto';
 import { UserService } from './user.service';
 import { RegisterUser, LoginUser } from './dtos/request';
@@ -10,14 +10,14 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @Post("register")
-  async registerUser(@Body() body: RegisterUser, @Res({ passthrough: true }) res: Response): Promise<ResponseDto<EmailVerificationResponse>> {
-    const user: ResponseDto<EmailVerificationResponse> = await this.userService.registerUser(body, res);
+  async registerUser(@Body("data") body: RegisterUser): Promise<ResponseDto<EmailVerificationResponse>> {
+    const user: ResponseDto<EmailVerificationResponse> = await this.userService.registerUser(body);
     return user;
   }
 
   @Post("login")
-  async loginUser(@Body() body: LoginUser, @Res({ passthrough: true }) res: Response): Promise<ResponseDto<UserResponse>> {
-    const user: ResponseDto<UserResponse> = await this.userService.loginUser(body, res);
+  async loginUser(@Body("data") body: LoginUser, @Headers('visitorId') visitorId: string, @Res({ passthrough: true }) res: Response): Promise<ResponseDto<UserResponse>> {
+    const user: ResponseDto<UserResponse> = await this.userService.loginUser(body, visitorId, res);
     return user;
   }
 
@@ -26,5 +26,4 @@ export class UserController {
     const user: ResponseDto<EmailVerificationResponse> = await this.userService.verifyUser(verificationToken);
     return user;
   }
-
 }

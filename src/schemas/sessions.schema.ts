@@ -11,6 +11,9 @@ export class SessionsModel extends Document {
 
     @Prop({ required: true, default: true })
     status: boolean;
+
+    @Prop({ required: true })
+    visitorId: string;
 }
 
 export const SessionsSchema = SchemaFactory.createForClass(SessionsModel);
