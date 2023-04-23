@@ -11,7 +11,6 @@ export class QuizController {
 
   @Post("create")
   async registerUser(@Body("data") body: CreateQuiz, @CurrentUser() user:IUser): Promise<ResponseDto<IQuiz>> {
-    console.log(user , "USER______")
     const quiz: ResponseDto<IQuiz> = await this.userService.createQuiz(body , user);
     return quiz;
   }
