@@ -3,10 +3,12 @@ import { sign, verify } from 'jsonwebtoken';
 import { hash, compare } from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { AES, enc } from "crypto-js"
-import { isValidJSON } from 'src/utils';
+
+import { UtilsService } from 'src/utils/utils.service';
+
 @Injectable()
 export class AuthService {
-  constructor(private configService: ConfigService) {
+  constructor(private utilService: UtilsService, private configService: ConfigService) {
   }
   generateToken(data: any): string {
     const token = sign(data, this.configService.get("SECRET_KEY"), { expiresIn: '8h' });
@@ -36,7 +38,7 @@ export class AuthService {
     const dataWordArray = AES.decrypt(data, this.configService.get("CRYPTO_SECRET_KEY"));
     let decryptedData: any = dataWordArray.toString(enc.Utf8);
 
-    if(isValidJSON(decryptedData)){
+    if (this.utilService.isValidJSON(decryptedData)) {
       decryptedData = JSON.parse(decryptedData)
     }
 
