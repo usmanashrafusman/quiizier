@@ -9,6 +9,7 @@ import { AuthModule } from "./auth/auth.module";
 import { UserModule } from "./user/user.module";
 import { EmailModule } from "./email/email.module";
 import { UtilsModules } from "./utils/utils.module";
+import { QuizModule } from "./quiz/quiz.module";
 
 //Services Imports
 import { AppService } from "./app.service";
@@ -34,7 +35,7 @@ const RequestResponse = {
 export const Imports = [ConfigModule.forRoot({
     isGlobal: true,
     load: [configuration]
-}), DatabaseModule, MongooseModule.forFeature([{ name: SessionsModel.name, schema: SessionsSchema }]), AuthModule, UtilsModules, EmailModule, UserModule,]
+}), DatabaseModule, MongooseModule.forFeature([{ name: SessionsModel.name, schema: SessionsSchema }]), AuthModule, UtilsModules, EmailModule, UserModule, QuizModule]
 
 export const Controllers = [AppController]
 export const Services = [AppService, RequestResponse]

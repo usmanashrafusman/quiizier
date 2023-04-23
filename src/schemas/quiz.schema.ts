@@ -21,7 +21,7 @@ export class QuizModel extends Document {
     @Prop({ required: true, default: false })
     isPeriodRunning: boolean;
 
-    @Prop({ required: true })
+    @Prop()
     publicAccessKey: string;
 
     @Prop({ required: true, type: Date, default: Date.now })
