@@ -34,4 +34,4 @@ export class QuizModel extends Document {
     createdBy: MongooseSchema.Types.ObjectId;
 }
 
-export const UserSchema = SchemaFactory.createForClass(QuizModel);
+export const QuizSchema = SchemaFactory.createForClass(QuizModel);
