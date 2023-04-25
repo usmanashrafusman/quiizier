@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDateString } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDateString, IsMongoId } from 'class-validator';
 
 export class CreateQuiz {
     @IsNotEmpty()
@@ -21,6 +21,15 @@ export class CreateQuiz {
     @IsOptional()
     @IsNotEmpty()
     @IsDateString()
-    endTime: Date;
+    startTime: Date;
 
+    @IsOptional()
+    @IsNotEmpty()
+    @IsDateString()
+    endTime: Date;
+}
+
+export class GetQuiz {
+    @IsMongoId({ message: "Invalid Input" })
+    quizId: string
 }

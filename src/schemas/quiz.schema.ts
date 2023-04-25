@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, HydratedDocument } from 'mongoose';
+import { Interface } from 'readline';
 
 @Schema({ timestamps: true, versionKey: false, collection: "quizzes" })
 export class QuizModel extends Document {
@@ -9,11 +10,11 @@ export class QuizModel extends Document {
     @Prop({ required: true, default: false })
     status: boolean;
 
-    @Prop({ required: true, type: Number, default: 0 })
-    noOfQuestion: Number;
+    @Prop({ required: true, default: 0 })
+    noOfQuestion: number;
 
-    @Prop({ required: true, type: Number, default: 0 })
-    noOfAttempts: Number;
+    @Prop({ required: true, default: 0 })
+    noOfAttempts: number;
 
     @Prop({ required: true, default: true })
     isPublic: boolean;
@@ -21,7 +22,7 @@ export class QuizModel extends Document {
     @Prop({ required: true, default: false })
     isPeriodRunning: boolean;
 
-    @Prop()
+    @Prop({ required: true, default: "" })
     publicAccessKey: string;
 
     @Prop({ required: true, type: Date, default: Date.now })
@@ -35,4 +36,13 @@ export class QuizModel extends Document {
 }
 
 export const QuizSchema = SchemaFactory.createForClass(QuizModel);
-export type IQuiz = HydratedDocument<QuizModel>
+
+export interface IQuiz {
+    name: string;
+    isPublic?: boolean;
+    isPeriodRunning?: boolean;
+    publicAccessKey?: string;
+    startTime?: Date;
+    endTime?: Date;
+    createdBy: string;
+} 
