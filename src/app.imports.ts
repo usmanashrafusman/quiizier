@@ -21,7 +21,7 @@ import { AppController } from "./app.controller";
 import configuration from "./configuration";
 
 //Interceptor Imports
-import { RequestResponseInterceptor } from "./interceptors/request.response.interceptor";
+import { RequestResponseInterceptor } from "./interceptors";
 
 //Schemas and Models
 import { SessionsModel, SessionsSchema } from "./schemas";
