@@ -1,22 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
 import { Response } from 'express';
-import { Model } from 'mongoose';
-
-import { UserModel, SessionsModel, } from "src/schemas"
 import { UtilsService } from 'src/utils/utils.service';
 import { EmailService } from 'src/email/email.service';
 import { RegisterUser, LoginUser } from './dtos/request';
 import { RESPONSE_MESSAGES } from '../dtos/response.messages';
 import { ERROR_CODES } from '../dtos/errors.code';
+import { SessionRepository } from 'src/repository/session/session.repository';
+import { UserRepository } from 'src/repository/user/user.repository';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel(UserModel.name) private userModel: Model<UserModel>, @InjectModel(SessionsModel.name) private sessionsModel: Model<SessionsModel>, private utilsService: UtilsService, private emailService: EmailService, private configService: ConfigService) { }
+  constructor(private readonly userRepository: UserRepository, private readonly sessionRepository: SessionRepository, private utilsService: UtilsService, private emailService: EmailService, private configService: ConfigService) { }
 
   async registerUser(body: RegisterUser) {
-    const isExist = await this.userModel.findOne({ email: body.email })
+    const isExist = await this.userRepository.findOneByEmail(body.email);
 
     if (isExist) {
       throw new BadRequestException(ERROR_CODES.USER_ALREADY_EXIST);
@@ -25,12 +23,12 @@ export class AuthService {
     const hashPassword = await this.utilsService.generateHash(body.password);
     const verificationToken = this.utilsService.generateToken({ email: body.email })
 
-    const newUser = await this.userModel.create({
+    await this.userRepository.register({
       name: body.name,
       email: body.email,
       password: hashPassword,
       verificationToken,
-    });
+    })
 
     const HTML = `<p>Click Below To Verify Your Email<p> <a href=${this.configService.get("FRONTEND_URL")}user/verify-user/${verificationToken}>Verify Email</a>`
 
@@ -50,7 +48,7 @@ export class AuthService {
 
   async loginUser(body: LoginUser, visitorId: string, res: Response) {
 
-    const isExist = await this.userModel.findOne({ email: body.email })
+    const isExist = await this.userRepository.findOneByEmail(body.email);
     //If the user does not exist
     if (!isExist) {
       throw new BadRequestException(ERROR_CODES.USER_DOES_NOT_EXIST);
@@ -73,14 +71,15 @@ export class AuthService {
       email: isExist.email
     }
     //making all previous sessions expired
-    await this.sessionsModel.updateMany({ userId: user._id }, { $set: { status: false } })
+    await this.sessionRepository.expirePreviousSessions(user._id)
 
     const token = this.utilsService.generateToken({ ...user, visitorId });
+
     //adding the token into sessions
     const encryptedToken = this.utilsService.encryptData(token);
     const encryptedVisitorId = this.utilsService.encryptData(visitorId);
-    
-    await this.sessionsModel.create({
+
+    await this.sessionRepository.createNewSession({
       token,
       visitorId,
       userId: user._id
@@ -106,7 +105,7 @@ export class AuthService {
 
 
   async verifyUser(verificationToken: string) {
-    const user = await this.userModel.findOne({ verificationToken })
+    const user = await this.userRepository.findOne({ verificationToken })
     //if the token is not expired
 
     //@ts-ignore
@@ -118,7 +117,7 @@ export class AuthService {
       throw new BadRequestException(ERROR_CODES.TOKEN_EXPIRED);
     }
 
-    await this.userModel.findByIdAndUpdate(user._id, { status: true });
+    await this.userRepository.findByIdAndUpdate(user._id, { status: true });
 
     return {
       data: { message: "Email Verification Done" },

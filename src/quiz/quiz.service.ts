@@ -1,15 +1,12 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Injectable } from '@nestjs/common';
 
 import { CreateQuiz } from './dtos/request';
-import { QuizModel, IUser, IQuiz } from "src/schemas"
+import { IUser, IQuiz } from "src/schemas"
 import { RESPONSE_MESSAGES } from '../dtos/response.messages';
-import { ERROR_CODES } from 'src/dtos/errors.code';
-
+import { QuizRepository } from 'src/repository/quiz/quiz.repository';
 @Injectable()
 export class QuizService {
-  constructor(@InjectModel(QuizModel.name) private quizModel: Model<QuizModel>) { }
+  constructor(private readonly quizRepository: QuizRepository) { }
 
   async createQuiz(body: CreateQuiz, user: IUser) {
     const quizData: IQuiz = {
@@ -34,7 +31,7 @@ export class QuizService {
       quizData.endTime = body.endTime
     }
 
-    const quiz = await this.quizModel.create(quizData);
+    const quiz = await this.quizRepository.create(quizData);
     return {
       data: quiz,
       messages: [{
@@ -45,9 +42,7 @@ export class QuizService {
   }
 
   async getAllQuizzes(user: IUser) {
-    const quiz = await this.quizModel.find({
-      createdBy: user._id
-    });
+    const quiz = await this.quizRepository.queryAll({ createdBy: user._id });
 
     return {
       data: quiz,
@@ -56,10 +51,7 @@ export class QuizService {
   }
 
   async getQuizById(quizId: string) {
-    const quiz = await this.quizModel.findById(quizId);
-    if (!quiz) {
-      throw new BadRequestException(ERROR_CODES.QUIZ_NOT_FOUND)
-    }
+    const quiz = await this.quizRepository.getById(quizId);
     return {
       data: quiz,
       messages: []
