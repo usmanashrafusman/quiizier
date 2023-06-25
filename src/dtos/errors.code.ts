@@ -6,5 +6,7 @@ export enum ERROR_CODES {
     UNAUTHORIZED = "You are not authorized",
     UNEXPECTED_ERROR = "Unexpected error",
     TOKEN_EXPIRED = "Token expired",
-    QUIZ_NOT_FOUND= "Quiz Not Found"
+    QUIZ_NOT_FOUND= "Quiz Not Found",
+    ERROR_WHILE_CREATING_USER = "Error while creating user",
+
 }
