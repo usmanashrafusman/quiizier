@@ -2,17 +2,16 @@ import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/commo
 import { NextFunction, Request, Response } from "express";
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-
-import { AuthService } from 'src/auth/auth.service';
 import { ERROR_CODES } from 'src/dtos/errors.code';
-import { SessionsModel } from 'src/schemas';
-import { IUser } from "src/schemas";
+
+import { SessionsModel ,IUser } from 'src/schemas';
+import { UtilsService } from "src/utils/utils.service";
 
 type ExpressRequest = Request & { user: IUser };
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-    constructor(private readonly authService: AuthService, @InjectModel(SessionsModel.name) private sessionsModel: Model<SessionsModel>) { }
+    constructor(private readonly utilsService: UtilsService, @InjectModel(SessionsModel.name) private sessionsModel: Model<SessionsModel>) { }
     async use(req: ExpressRequest, res: Response, next: NextFunction) {
 
         let token = req.cookies["Authorization"];
@@ -25,10 +24,10 @@ export class AuthMiddleware implements NestMiddleware {
         token = decodeURIComponent(token);
         visitorId = decodeURIComponent(visitorId);
 
-        token = await this.authService.decryptData(token);
-        visitorId = await this.authService.decryptData(visitorId);
+        token = await this.utilsService.decryptData(token);
+        visitorId = await this.utilsService.decryptData(visitorId);
 
-        const user = this.authService.decodeToken(token);
+        const user = this.utilsService.decodeToken(token);
         if (!user) {
             throw new UnauthorizedException(ERROR_CODES.UNAUTHORIZED);
         }

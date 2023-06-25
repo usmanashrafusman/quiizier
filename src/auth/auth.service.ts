@@ -1,51 +1,131 @@
-import { Injectable } from '@nestjs/common';
-import { sign, verify } from 'jsonwebtoken';
-import { hash, compare } from 'bcryptjs';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AES, enc } from "crypto-js"
-
+import { Response } from 'express';
 import { UtilsService } from 'src/utils/utils.service';
+import { EmailService } from 'src/email/email.service';
+import { RegisterUser, LoginUser } from './dtos/request';
+import { RESPONSE_MESSAGES } from '../dtos/response.messages';
+import { ERROR_CODES } from '../dtos/errors.code';
+import { SessionRepository } from 'src/repository/session/session.repository';
+import { UserRepository } from 'src/repository/user/user.repository';
 
 @Injectable()
 export class AuthService {
-  constructor(private utilService: UtilsService, private configService: ConfigService) {
-  }
-  generateToken(data: any): string {
-    const token = sign(data, this.configService.get("SECRET_KEY"), { expiresIn: '8h' });
-    return token;
-  };
+  constructor(private readonly userRepository: UserRepository, private readonly sessionRepository: SessionRepository, private utilsService: UtilsService, private emailService: EmailService, private configService: ConfigService) { }
 
-  decodeToken(token: string) {
-    const decoded: any = verify(token, this.configService.get("SECRET_KEY"));
-    return decoded;
-  }
+  async registerUser(body: RegisterUser) {
+    const isExist = await this.userRepository.findOneByEmail(body.email);
 
-  async generateHash(plainText: string): Promise<string> {
-    return await hash(plainText, 12);
-  }
-
-  async comparePassword(plainText: string, hash: string): Promise<boolean> {
-    return await compare(plainText, hash)
-  }
-
-  encryptData(plainData: any): string {
-    const data = JSON.stringify({ data: plainData });
-    const encryptedData = AES.encrypt(data, this.configService.get("CRYPTO_SECRET_KEY")).toString();
-    return encryptedData;
-  };
-
-  decryptData(data: string): any {
-    const dataWordArray = AES.decrypt(data, this.configService.get("CRYPTO_SECRET_KEY"));
-    let decryptedData: any = dataWordArray.toString(enc.Utf8);
-
-    if (this.utilService.isValidJSON(decryptedData)) {
-      decryptedData = JSON.parse(decryptedData)
+    if (isExist) {
+      throw new BadRequestException(ERROR_CODES.USER_ALREADY_EXIST);
     }
 
-    if (decryptedData?.data) {
-      return decryptedData.data
+    const hashPassword = await this.utilsService.generateHash(body.password);
+    const verificationToken = this.utilsService.generateToken({ email: body.email })
+
+    await this.userRepository.register({
+      name: body.name,
+      email: body.email,
+      password: hashPassword,
+      verificationToken,
+    })
+
+    const HTML = `<p>Click Below To Verify Your Email<p> <a href=${this.configService.get("FRONTEND_URL")}user/verify-user/${verificationToken}>Verify Email</a>`
+
+    const verificationEmail = await this.emailService.sendEmail(body.email, "Email Verification Required", "Please Click Below Link to Verify Your Email", HTML);
+    if (!verificationEmail) {
+      throw new BadRequestException(ERROR_CODES.UNEXPECTED_ERROR);
+    };
+
+    return {
+      data: { message: "Email Verification Required" },
+      messages: [{
+        code: 200,
+        message: RESPONSE_MESSAGES.REGISTRATION_SUCCESSFUL
+      }]
+    };
+  }
+
+  async loginUser(body: LoginUser, visitorId: string, res: Response) {
+
+    const isExist = await this.userRepository.findOneByEmail(body.email);
+    //If the user does not exist
+    if (!isExist) {
+      throw new BadRequestException(ERROR_CODES.USER_DOES_NOT_EXIST);
     }
-    return decryptedData;
+
+    //if the user email is not verified
+    if (!isExist.status) {
+      throw new BadRequestException(ERROR_CODES.NOT_VERIFIED);
+    }
+
+    // if the password is not correct
+    const isValidPassword = await this.utilsService.comparePassword(body.password, isExist.password);
+    if (!isValidPassword) {
+      throw new BadRequestException(ERROR_CODES.INVALID_PASSWORD);
+    };
+
+    const user = {
+      _id: isExist._id,
+      name: isExist.name,
+      email: isExist.email
+    }
+    //making all previous sessions expired
+    await this.sessionRepository.expirePreviousSessions(user._id)
+
+    const token = this.utilsService.generateToken({ ...user, visitorId });
+
+    //adding the token into sessions
+    const encryptedToken = this.utilsService.encryptData(token);
+    const encryptedVisitorId = this.utilsService.encryptData(visitorId);
+
+    await this.sessionRepository.createNewSession({
+      token,
+      visitorId,
+      userId: user._id
+    })
+    res.cookie("Authorization", encryptedToken, {
+      httpOnly: true,
+      maxAge: 28800000,
+    });
+
+    res.cookie("visitorId", encryptedVisitorId, {
+      httpOnly: true,
+      maxAge: 28800000,
+    });
+
+    return {
+      data: user,
+      messages: [{
+        code: 200,
+        message: RESPONSE_MESSAGES.LOGIN_SUCCESSFUL
+      }]
+    }
+  }
+
+
+  async verifyUser(verificationToken: string) {
+    const user = await this.userRepository.findOne({ verificationToken })
+    //if the token is not expired
+
+    //@ts-ignore
+    const createdDate = new Date(user.createdAt).getTime();
+    const milliseconds = new Date().getTime() - createdDate;
+    const mins = Math.floor(milliseconds / 1000 / 60);
+
+    if (mins > 30) {
+      throw new BadRequestException(ERROR_CODES.TOKEN_EXPIRED);
+    }
+
+    await this.userRepository.findByIdAndUpdate(user._id, { status: true });
+
+    return {
+      data: { message: "Email Verification Done" },
+      messages: [{
+        code: 200,
+        message: RESPONSE_MESSAGES.EMAIL_VERIFICATION_SUCCESSFUL
+      }]
+    };
   }
 
 }

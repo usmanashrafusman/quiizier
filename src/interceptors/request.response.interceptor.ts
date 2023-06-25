@@ -1,20 +1,21 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { map } from 'rxjs/operators';
 import { Request } from 'express';
-import { AuthService } from 'src/auth/auth.service';
+import { APP_ENVIRONMENTS } from 'src/dtos/constants';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
 export class RequestResponseInterceptor implements NestInterceptor {
-    constructor(private authService: AuthService) { }
+    constructor(private utilsService: UtilsService) { }
     async intercept(context: ExecutionContext, next: CallHandler) {
         const request: Request = context.switchToHttp().getRequest();
-        if (request.body && request.body?.data) {
-            request.body.data = this.authService.decryptData(request.body.data);
+        if (request.body && request.body?.data && this.utilsService.APP_ENV === APP_ENVIRONMENTS.PROD) {
+            request.body.data = this.utilsService.decryptData(request.body.data);
         };
 
         return next.handle().pipe(map(async (response) => {
-            if (response?.data) {
-                response.data = this.authService.encryptData(response.data);
+            if (response?.data && this.utilsService.APP_ENV === APP_ENVIRONMENTS.PROD) {
+                response.data = this.utilsService.encryptData(response.data);
             }
             return response;
         }));

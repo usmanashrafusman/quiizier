@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema, HydratedDocument } from 'mongoose';
-import { Interface } from 'readline';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 @Schema({ timestamps: true, versionKey: false, collection: "quizzes" })
 export class QuizModel extends Document {
