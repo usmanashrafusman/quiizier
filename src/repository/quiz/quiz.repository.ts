@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { QuizModel, IQuiz } from "src/schemas"
-import { ERROR_CODES } from '../../dtos/errors.code';
+import { ERROR_CODES } from 'src/common';
 
 @Injectable()
 export class QuizRepository {

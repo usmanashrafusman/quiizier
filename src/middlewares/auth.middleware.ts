@@ -2,10 +2,11 @@ import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/commo
 import { NextFunction, Request, Response } from "express";
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ERROR_CODES } from 'src/dtos/errors.code';
 
-import { SessionsModel ,IUser } from 'src/schemas';
 import { UtilsService } from "src/utils/utils.service";
+
+import { ERROR_CODES } from 'src/common';
+import { SessionsModel, IUser } from 'src/schemas';
 
 type ExpressRequest = Request & { user: IUser };
 

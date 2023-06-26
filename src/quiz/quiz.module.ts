@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
+
+import { QuizRepositoryModel } from 'src/repository';
+
 import { QuizController } from './quiz.controller';
 import { QuizService } from './quiz.service';
-import { QuizRepositoryModel } from 'src/repository/quiz/quiz.repository.module';
 @Module({
     imports: [QuizRepositoryModel],
     providers: [QuizService],

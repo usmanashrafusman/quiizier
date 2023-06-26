@@ -7,7 +7,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core'
 import { DatabaseModule } from "./db/db.module";
 import { AuthModule } from "./auth/auth.module";
 import { EmailModule } from "./email/email.module";
-import { UtilsModules } from "./utils/utils.module";
+import { UtilsModule } from "./utils/utils.module";
 import { QuizModule } from "./quiz/quiz.module";
 
 //Services Imports
@@ -34,7 +34,7 @@ const RequestResponse = {
 export const Imports = [ConfigModule.forRoot({
     isGlobal: true,
     load: [configuration]
-}), DatabaseModule, MongooseModule.forFeature([{ name: SessionsModel.name, schema: SessionsSchema }]), AuthModule, UtilsModules, EmailModule, QuizModule]
+}), DatabaseModule, MongooseModule.forFeature([{ name: SessionsModel.name, schema: SessionsSchema }]), AuthModule, UtilsModule, EmailModule, QuizModule]
 
 export const Controllers = [AppController]
 export const Services = [AppService, RequestResponse]

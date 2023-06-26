@@ -1,13 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
+
 import { UtilsService } from 'src/utils/utils.service';
 import { EmailService } from 'src/email/email.service';
+import { RESPONSE_MESSAGES, ERROR_CODES } from 'src/common';
+
+import { SessionRepository, UserRepository } from 'src/repository';
+
 import { RegisterUser, LoginUser } from './dtos/request';
-import { RESPONSE_MESSAGES } from '../dtos/response.messages';
-import { ERROR_CODES } from '../dtos/errors.code';
-import { SessionRepository } from 'src/repository/session/session.repository';
-import { UserRepository } from 'src/repository/user/user.repository';
 
 @Injectable()
 export class AuthService {
