@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
-import { CreateQuiz } from './dtos/request';
 import { IUser, IQuiz } from "src/schemas"
-import { RESPONSE_MESSAGES } from '../dtos/response.messages';
-import { QuizRepository } from 'src/repository/quiz/quiz.repository';
+import { QuizRepository } from 'src/repository';
+import { RESPONSE_MESSAGES } from 'src/common';
+
+import { CreateQuiz } from './dtos/request';
 @Injectable()
 export class QuizService {
   constructor(private readonly quizRepository: QuizRepository) { }

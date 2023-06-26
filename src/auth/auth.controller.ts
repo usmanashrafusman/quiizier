@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Res, Get, Param, Headers } from '@nestjs/common';
 import { Response } from 'express';
-import { ResponseDto } from 'src/dtos/response.dto';
+import { ResponseDto } from 'src/dtos';
+
 import { RegisterUser, LoginUser } from './dtos/request';
 import { UserResponse, EmailVerificationResponse } from './dtos/response';
 import { AuthService } from './auth.service';

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { SessionRepositoryModule } from 'src/repository/session/session.repository.module';
-import { UserRepositoryModule } from 'src/repository/user/user.repository.module';
+import { UserRepositoryModule, SessionRepositoryModule } from 'src/repository';
+
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 @Module({

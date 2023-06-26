@@ -1,7 +1,8 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { map } from 'rxjs/operators';
 import { Request } from 'express';
-import { APP_ENVIRONMENTS } from 'src/dtos/constants';
+
+import { APP_ENVIRONMENTS } from 'src/common';
 import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
