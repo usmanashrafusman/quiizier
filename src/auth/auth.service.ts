@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 
@@ -80,11 +80,16 @@ export class AuthService {
     const encryptedToken = this.utilsService.encryptData(token);
     const encryptedVisitorId = this.utilsService.encryptData(visitorId);
 
-    await this.sessionRepository.createNewSession({
+    const newSession = await this.sessionRepository.createNewSession({
       token,
       visitorId,
       userId: user._id
     })
+
+    if (!newSession) {
+      throw new BadRequestException(RESPONSE_MESSAGES.ERROR_WHILE_LOGGING_IN)
+    }
+
     res.cookie("Authorization", encryptedToken, {
       httpOnly: true,
       maxAge: 28800000,
@@ -108,6 +113,10 @@ export class AuthService {
   async verifyUser(verificationToken: string) {
     const user = await this.userRepository.findOne({ verificationToken })
     //if the token is not expired
+
+    if(!user){
+      throw new UnauthorizedException(RESPONSE_MESSAGES.UNAUTHORIZE_USER)
+    }
 
     //@ts-ignore
     const createdDate = new Date(user.createdAt).getTime();
