@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { IUser, IQuiz } from "src/schemas"
 import { QuizRepository } from 'src/repository';
@@ -33,6 +33,11 @@ export class QuizService {
     }
 
     const quiz = await this.quizRepository.create(quizData);
+
+    if (!quiz) {
+      throw new BadRequestException(RESPONSE_MESSAGES.ERROR_WHILE_CREATING_QUIZ)
+    }
+
     return {
       data: quiz,
       messages: [{
@@ -44,7 +49,7 @@ export class QuizService {
 
   async getAllQuizzes(user: IUser) {
     const quiz = await this.quizRepository.queryAll({ createdBy: user._id });
-
+    
     return {
       data: quiz,
       messages: []
@@ -53,6 +58,9 @@ export class QuizService {
 
   async getQuizById(quizId: string) {
     const quiz = await this.quizRepository.getById(quizId);
+    if (!quiz) {
+      throw new BadRequestException(RESPONSE_MESSAGES.QUIZ_NOT_FOUND)
+    }
     return {
       data: quiz,
       messages: []
